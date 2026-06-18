@@ -326,3 +326,31 @@ Dùng `UnityWebRequest` với coroutine. Key lưu trong `Assets/Resources/config
 4. **Verify rõ ràng** — sau mỗi task nói rõ "test bằng cách nào"
 5. **Dùng ScriptableObject cho data** — không hardcode số vào script
 6. **Comment logic phức tạp** — đặc biệt reaction system và state machine
+
+---
+
+## 7. Git workflow (BẮT BUỘC)
+
+Mỗi lần làm việc phải đi qua nhánh + PR, không commit thẳng vào `main`.
+
+**Remote:** `https://github.com/HuyHaiThanh/SlimeOrigin.git` · **gh CLI** đã cài (`C:\Program Files\GitHub CLI\gh.exe`).
+
+### Quy trình mỗi feature
+```
+1. git checkout main && git pull
+2. git checkout -b feat/<mô-tả-ngắn>      # hoặc fix/, chore/
+3. ... code + verify (compile xanh, test) ...
+4. git add -A && git commit               # message tiếng Việt, có ý nghĩa
+5. git push -u origin feat/<...>
+6. gh pr create --fill                    # tạo PR vào main
+7. gh pr merge --squash --delete-branch   # squash-merge sau khi review
+```
+
+### Quy ước
+- Nhánh: `feat/` (tính năng), `fix/` (sửa lỗi), `chore/` (config/dọn dẹp)
+- 1 PR = 1 tuần hoặc 1 feature gọn — đừng gộp quá nhiều
+- Commit message: tiếng Việt, mô tả "cái gì + tại sao", kết thúc bằng `Co-Authored-By: Claude`
+- `main` luôn ở trạng thái compile xanh + chơi được
+- Squash-merge để history sạch (đẹp cho portfolio)
+- KHÔNG commit: `config.json` (API key), `settings.local.json`, `Screenshots/` (đã gitignore)
+- Ảnh/font/audio đi qua **Git LFS** (đã cấu hình trong `.gitattributes`)
