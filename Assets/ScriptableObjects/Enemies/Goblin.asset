@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   enemyName: Goblin
   element: 1
-  maxHP: 30
+  maxHP: 80
   attackPerTurn: 8
   skillTaught: Flare
   sprite: {fileID: 0}

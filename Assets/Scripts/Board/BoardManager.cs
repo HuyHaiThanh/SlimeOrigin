@@ -21,11 +21,14 @@ public class BoardManager : MonoBehaviour
     // Board khởi tạo chỉ dùng 3 element này (mục 2.4 / 2.9). Thêm dần sau khi absorb.
     [SerializeField] private ElementType[] spawnPool = { ElementType.Pyro, ElementType.Hydro, ElementType.Cryo };
 
+    [SerializeField] private float animDuration = 0.18f;   // thoi gian tween tile (giay)
+
     private SlimeTile[,] tiles;
 
     public int Width => width;
     public int Height => height;
     public SlimeTile GetTile(int row, int col) => tiles[row, col];
+    public float AnimDuration => animDuration;
 
     void Start()
     {
@@ -104,7 +107,7 @@ public class BoardManager : MonoBehaviour
         tiles[toRow, toCol] = tile;
         tiles[fromRow, fromCol] = null;
         tile.SetGridPosition(toRow, toCol);
-        tile.SnapToWorld(GridToWorld(toRow, toCol));
+        tile.MoveTo(GridToWorld(toRow, toCol), animDuration);
     }
 
     /// <summary>
@@ -116,6 +119,10 @@ public class BoardManager : MonoBehaviour
         ElementType element = spawnPool[Random.Range(0, spawnPool.Length)];
         SlimeTile tile = SpawnTile(row, col, element);
         tiles[row, col] = tile;
+        // Spawn phia tren board roi roi xuong de co animation rot.
+        Vector3 target = GridToWorld(row, col);
+        tile.SnapToWorld(target + Vector3.up * (height * tileSize));
+        tile.MoveTo(target, animDuration);
         return tile;
     }
 
@@ -136,9 +143,9 @@ public class BoardManager : MonoBehaviour
         tiles[r1, c1] = b;
         tiles[r2, c2] = a;
         a.SetGridPosition(r2, c2);
-        a.SnapToWorld(GridToWorld(r2, c2));
+        a.MoveTo(GridToWorld(r2, c2), animDuration);
         b.SetGridPosition(r1, c1);
-        b.SnapToWorld(GridToWorld(r1, c1));
+        b.MoveTo(GridToWorld(r1, c1), animDuration);
     }
 
 

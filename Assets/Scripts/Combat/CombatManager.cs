@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -30,6 +31,7 @@ public class CombatManager : MonoBehaviour
     public event Action<int, int> OnPlayerHPChanged;   // (cur,max) — cho UI
     public event Action OnEnemyDefeated;               // → AbsorbChoice (GameManager xử lý)
     public event Action OnGameOver;
+    public event Action<int> OnEnemyDamaged;   // so damage moi don -> UI popup
 
     void Start()
     {
@@ -49,41 +51,32 @@ public class CombatManager : MonoBehaviour
     /// <summary>1 lượt player: swap → nếu không tạo match thì hoàn tác (không tốn lượt).</summary>
     private void HandleSwap(int r1, int c1, int r2, int c2)
     {
-        board.SwapTiles(r1, c1, r2, c2);
-        if (!MatchDetector.HasAnyMatch(board))
-        {
-            board.SwapTiles(r1, c1, r2, c2); // không match → trả lại, không qua lượt enemy
-            return;
-        }
-
-        int damage = ResolveCascades();
-        if (enemy != null) enemy.TakeDamage(damage);
-
-        if (enemy != null && enemy.IsDead)
-        {
-            if (swapHandler != null) swapHandler.InputEnabled = false;
-            OnEnemyDefeated?.Invoke();
-            return;
-        }
-
-        EnemyTurn();
+        StartCoroutine(ResolveTurn(r1, c1, r2, c2));
     }
 
-    /// <summary>
-    /// Lặp: tìm match → cộng damage (5 + (n-3)×2 mỗi đợt) + feed skill counter theo element
-    /// → gravity/refill → đến khi hết match. Trả tổng damage gây cho enemy.
-    /// </summary>
-    private int ResolveCascades()
+    /// <summary>1 luot player, tuan tu co animation: swap -> cascade (damage + popup + delay) -> luot enemy.</summary>
+    private IEnumerator ResolveTurn(int r1, int c1, int r2, int c2)
     {
-        int totalDamage = 0;
-        HashSet<SlimeTile> matches = MatchDetector.FindMatches(board);
+        if (swapHandler != null) swapHandler.InputEnabled = false;
+        float d = board.AnimDuration;
 
+        board.SwapTiles(r1, c1, r2, c2);
+        yield return new WaitForSeconds(d);
+
+        if (!MatchDetector.HasAnyMatch(board))
+        {
+            board.SwapTiles(r1, c1, r2, c2);   // khong match -> swap nguoc lai
+            yield return new WaitForSeconds(d);
+            if (swapHandler != null) swapHandler.InputEnabled = true;
+            yield break;
+        }
+
+        HashSet<SlimeTile> matches = MatchDetector.FindMatches(board);
         while (matches.Count > 0)
         {
             int n = matches.Count;
-            totalDamage += baseMatchDamage + (n - 3) * bonusPerExtraTile;
+            DealEnemyDamage(baseMatchDamage + (n - 3) * bonusPerExtraTile);
 
-            // Đếm tile theo element TRƯỚC khi gravity xóa chúng, rồi feed skill.
             if (skillSystem != null)
             {
                 var perElement = new Dictionary<ElementType, int>();
@@ -92,16 +85,42 @@ public class CombatManager : MonoBehaviour
                     ElementType e = tile.Element;
                     perElement[e] = (perElement.ContainsKey(e) ? perElement[e] : 0) + 1;
                 }
-                foreach (var kv in perElement)
-                    skillSystem.AddMatchedTiles(kv.Key, kv.Value);
+                foreach (var kv in perElement) skillSystem.AddMatchedTiles(kv.Key, kv.Value);
             }
 
+            yield return new WaitForSeconds(d * 0.6f);            // cho thay match truoc khi xoa
             GravitySystem.ApplyGravityAndRefill(board, matches);
+            yield return new WaitForSeconds(d + 0.05f);          // cho tile roi xong
             matches = MatchDetector.FindMatches(board);
         }
 
-        return totalDamage;
+        if (enemy != null && enemy.IsDead)
+        {
+            if (swapHandler != null) swapHandler.InputEnabled = false;
+            OnEnemyDefeated?.Invoke();
+            yield break;
+        }
+
+        EnemyTurn();
+        yield return new WaitForSeconds(0.1f);
+
+        if (PlayerHP > 0 && swapHandler != null) swapHandler.InputEnabled = true;
     }
+
+    /// <summary>Gay damage cho enemy + ban event de UI hien so. Bo qua neu enemy da chet.</summary>
+    private void DealEnemyDamage(int amount)
+    {
+        if (enemy == null || amount <= 0 || enemy.IsDead) return;
+        enemy.TakeDamage(amount);
+        OnEnemyDamaged?.Invoke(amount);
+    }
+
+
+    /// <summary>
+    /// Lặp: tìm match → cộng damage (5 + (n-3)×2 mỗi đợt) + feed skill counter theo element
+    /// → gravity/refill → đến khi hết match. Trả tổng damage gây cho enemy.
+    /// </summary>
+
 
     /// <summary>Lượt enemy: nếu đang freeze thì bỏ lượt, ngược lại đánh player.</summary>
     private void EnemyTurn()
@@ -131,7 +150,7 @@ public class CombatManager : MonoBehaviour
         switch (skill.effectType)
         {
             case SkillEffectType.DamageAll:
-                if (enemy != null) enemy.TakeDamage(skill.effectValue);
+                DealEnemyDamage(skill.effectValue);
                 break;
 
             case SkillEffectType.Heal:

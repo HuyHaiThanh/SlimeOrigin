@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 /// <summary>
 /// View của 1 ô trên board. KHÔNG chứa logic match/gravity — chỉ hiển thị element
@@ -13,6 +14,7 @@ public class SlimeTile : MonoBehaviour
     public ElementType Element { get; private set; }
 
     private SpriteRenderer spriteRenderer;
+    private Coroutine moveRoutine;
 
     void Awake()
     {
@@ -39,6 +41,30 @@ public class SlimeTile : MonoBehaviour
     {
         transform.position = worldPosition;
     }
+
+    /// <summary>Tween mượt tới world position trong 'duration' giây. Logic đã cập nhật từ trước, đây chỉ là visual bắt kịp.</summary>
+    public void MoveTo(Vector3 target, float duration)
+    {
+        if (moveRoutine != null) StopCoroutine(moveRoutine);
+        if (duration <= 0f || !gameObject.activeInHierarchy) { transform.position = target; return; }
+        moveRoutine = StartCoroutine(MoveRoutine(target, duration));
+    }
+
+    private IEnumerator MoveRoutine(Vector3 target, float duration)
+    {
+        Vector3 start = transform.position;
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float k = Mathf.SmoothStep(0f, 1f, t / duration);
+            transform.position = Vector3.Lerp(start, target, k);
+            yield return null;
+        }
+        transform.position = target;
+        moveRoutine = null;
+    }
+
 
     /// <summary>
     /// Màu placeholder theo element (CLAUDE.md mục 3.2). Pyro/Hydro/Cryo/White đúng spec;
