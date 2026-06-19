@@ -78,24 +78,27 @@ public class UIManager : MonoBehaviour
         go.transform.SetParent(transform, false);
         var t = go.AddComponent<TextMeshProUGUI>();
         t.text = "-" + amount;
-        t.fontSize = 64;
+        t.fontSize = 96;
+        t.fontStyle = FontStyles.Bold;
         t.alignment = TextAlignmentOptions.Center;
-        t.color = new Color(1f, 0.85f, 0.2f, 1f);
+        t.color = new Color(1f, 0.9f, 0.15f, 1f);
+        t.enableWordWrapping = false;
         if (enemyHPText != null && enemyHPText.font != null) t.font = enemyHPText.font;
+        go.transform.SetAsLastSibling();   // ve tren cung
 
         var rt = go.GetComponent<RectTransform>();
         rt.anchorMin = new Vector2(0.5f, 1f); rt.anchorMax = new Vector2(0.5f, 1f); rt.pivot = new Vector2(0.5f, 1f);
-        rt.sizeDelta = new Vector2(300, 90);
-        float x = Random.Range(-150f, 150f);
-        float startY = -260f;
+        rt.sizeDelta = new Vector2(400, 130);
+        float x = Random.Range(-120f, 120f);
+        float startY = -250f;
 
-        float dur = 0.8f, tt = 0f;
+        float dur = 1.4f, tt = 0f;
         while (tt < dur)
         {
             tt += Time.deltaTime;
             float k = tt / dur;
-            rt.anchoredPosition = new Vector2(x, startY + 120f * k);   // bay len
-            t.color = new Color(1f, 0.85f, 0.2f, 1f - k);             // mo dan
+            rt.anchoredPosition = new Vector2(x, startY + 180f * k);   // bay len
+            t.color = new Color(1f, 0.9f, 0.15f, 1f - k * k);          // giu sang lau roi mo nhanh
             yield return null;
         }
         Destroy(go);

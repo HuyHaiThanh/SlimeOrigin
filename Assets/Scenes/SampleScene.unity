@@ -1132,7 +1132,7 @@ MonoBehaviour:
   tileSize: 1.5
   tilePrefab: {fileID: 6910914507669091555, guid: f3b6930fabd64444fb28e10d32620a9f, type: 3}
   spawnPool: 010000000200000003000000
-  animDuration: 0.18
+  animDuration: 0.32
 --- !u!4 &1387867775
 Transform:
   m_ObjectHideFlags: 0

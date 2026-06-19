@@ -88,9 +88,9 @@ public class CombatManager : MonoBehaviour
                 foreach (var kv in perElement) skillSystem.AddMatchedTiles(kv.Key, kv.Value);
             }
 
-            yield return new WaitForSeconds(d * 0.6f);            // cho thay match truoc khi xoa
+            yield return new WaitForSeconds(0.45f);               // dung de doc so damage + thay match
             GravitySystem.ApplyGravityAndRefill(board, matches);
-            yield return new WaitForSeconds(d + 0.05f);          // cho tile roi xong
+            yield return new WaitForSeconds(d + 0.12f);           // cho tile roi xong (thong tha)
             matches = MatchDetector.FindMatches(board);
         }
 
@@ -102,7 +102,7 @@ public class CombatManager : MonoBehaviour
         }
 
         EnemyTurn();
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.15f);
 
         if (PlayerHP > 0 && swapHandler != null) swapHandler.InputEnabled = true;
     }
