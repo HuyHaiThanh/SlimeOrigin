@@ -27,11 +27,14 @@ public class CombatManager : MonoBehaviour
     public int PlayerMaxHP => playerMaxHP;
 
     private int enemyFreezeTurns = 0;
+    [SerializeField] private int vaporizeMultiplier = 2;   // Pyro+Hydro: nhan damage
+    [SerializeField] private int frozenTurnsAdd = 2;       // Hydro+Cryo: freeze enemy N luot
 
     public event Action<int, int> OnPlayerHPChanged;   // (cur,max) — cho UI
     public event Action OnEnemyDefeated;               // → AbsorbChoice (GameManager xử lý)
     public event Action OnGameOver;
     public event Action<int> OnEnemyDamaged;   // so damage moi don -> UI popup
+    public event Action<string> OnReaction;    // ten reaction -> UI popup   // so damage moi don -> UI popup
 
     void Start()
     {
@@ -75,22 +78,36 @@ public class CombatManager : MonoBehaviour
         while (matches.Count > 0)
         {
             int n = matches.Count;
-            DealEnemyDamage(baseMatchDamage + (n - 3) * bonusPerExtraTile);
 
-            if (skillSystem != null)
+            // Dem element trong dot nay (dung cho reaction + skill).
+            var perElement = new Dictionary<ElementType, int>();
+            foreach (SlimeTile tile in matches)
             {
-                var perElement = new Dictionary<ElementType, int>();
-                foreach (SlimeTile tile in matches)
-                {
-                    ElementType e = tile.Element;
-                    perElement[e] = (perElement.ContainsKey(e) ? perElement[e] : 0) + 1;
-                }
-                foreach (var kv in perElement) skillSystem.AddMatchedTiles(kv.Key, kv.Value);
+                ElementType e = tile.Element;
+                perElement[e] = (perElement.ContainsKey(e) ? perElement[e] : 0) + 1;
             }
 
-            yield return new WaitForSeconds(0.45f);               // dung de doc so damage + thay match
+            int dmg = baseMatchDamage + (n - 3) * bonusPerExtraTile;
+
+            // Elemental reactions (muc 2.6)
+            if (ReactionSystem.HasVaporize(perElement))
+            {
+                dmg *= vaporizeMultiplier;
+                OnReaction?.Invoke("Vaporize x" + vaporizeMultiplier);
+            }
+            if (ReactionSystem.HasFrozen(perElement))
+            {
+                enemyFreezeTurns += frozenTurnsAdd;
+                OnReaction?.Invoke("Frozen +" + frozenTurnsAdd);
+            }
+
+            DealEnemyDamage(dmg);
+            if (skillSystem != null)
+                foreach (var kv in perElement) skillSystem.AddMatchedTiles(kv.Key, kv.Value);
+
+            yield return new WaitForSeconds(0.45f);               // dung de doc damage + reaction
             GravitySystem.ApplyGravityAndRefill(board, matches);
-            yield return new WaitForSeconds(d + 0.12f);           // cho tile roi xong (thong tha)
+            yield return new WaitForSeconds(d + 0.12f);
             matches = MatchDetector.FindMatches(board);
         }
 

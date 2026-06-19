@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f25b66bae6a007b48959bab2a3c37589, type: 3}
-  m_Name: Goblin
+  m_Name: BabyDragon
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
-  enemyName: Goblin
+  enemyName: BabyDragon
   element: 1
-  maxHP: 80
-  attackPerTurn: 8
-  rewardSkill: {fileID: 11400000, guid: aa79922b168c53b4f9a17144fa08d676, type: 2}
-  introText: Mot Goblin hung han chan duong. Hoi nong toa ra tu no...
+  maxHP: 200
+  attackPerTurn: 15
+  rewardSkill: {fileID: 0}
+  introText: Rong Con phun ra hoi nong lan hoi nuoc - con boss dau tien!
   sprite: {fileID: 0}

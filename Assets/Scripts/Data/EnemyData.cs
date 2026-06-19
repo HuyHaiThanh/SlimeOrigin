@@ -13,7 +13,10 @@ public class EnemyData : ScriptableObject
     public int attackPerTurn = 8;
 
     [Tooltip("Tên skill quái này dạy khi absorb — tuần 3 dùng.")]
-    public string skillTaught = "Flare";
+    public SkillData rewardSkill;          // skill mo khoa khi absorb (null = khong day skill)
+
+    [TextArea]
+    public string introText = "";          // text gioi thieu khi gap quai
 
     [Tooltip("Sprite hiển thị quái — gán ở tuần 4, để trống cũng chạy được.")]
     public Sprite sprite;

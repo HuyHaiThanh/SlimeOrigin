@@ -41,6 +41,7 @@ public class UIManager : MonoBehaviour
         {
             combat.OnPlayerHPChanged += UpdatePlayerHP;
             combat.OnEnemyDamaged += ShowEnemyDamage;
+            combat.OnReaction += ShowReaction;
             UpdatePlayerHP(combat.PlayerHP, combat.PlayerMaxHP);
         }
         if (skills != null)
@@ -56,6 +57,7 @@ public class UIManager : MonoBehaviour
         {
             combat.OnPlayerHPChanged -= UpdatePlayerHP;
             combat.OnEnemyDamaged -= ShowEnemyDamage;
+            combat.OnReaction -= ShowReaction;
         }
         if (skills != null) skills.OnCounterChanged -= UpdateCounter;
     }
@@ -64,6 +66,9 @@ public class UIManager : MonoBehaviour
     {
         if (enemyHPFill != null) enemyHPFill.fillAmount = max > 0 ? (float)cur / max : 0f;
         if (enemyHPText != null) enemyHPText.text = cur + " / " + max;
+        // Cập nhật tên quái mỗi lần (đổi màn init enemy mới -> fire OnHPChanged).
+        if (enemyNameText != null && enemy != null && enemy.Data != null)
+            enemyNameText.text = enemy.Data.enemyName;
     }
 
     /// <summary>Hien so damage bay len + mo dan tren khu vuc enemy.</summary>
@@ -103,6 +108,44 @@ public class UIManager : MonoBehaviour
         }
         Destroy(go);
     }
+
+    /// <summary>Hien ten reaction (Vaporize/Frozen) giua man, bay len + mo dan.</summary>
+    public void ShowReaction(string reactionName)
+    {
+        StartCoroutine(ReactionPopupRoutine(reactionName));
+    }
+
+    private IEnumerator ReactionPopupRoutine(string reactionName)
+    {
+        var go = new GameObject("ReactionPopup", typeof(RectTransform));
+        go.transform.SetParent(transform, false);
+        var t = go.AddComponent<TextMeshProUGUI>();
+        t.text = reactionName;
+        t.fontSize = 84;
+        t.fontStyle = FontStyles.Bold;
+        t.alignment = TextAlignmentOptions.Center;
+        t.color = new Color(0.5f, 0.95f, 1f, 1f);
+        t.enableWordWrapping = false;
+        if (enemyHPText != null && enemyHPText.font != null) t.font = enemyHPText.font;
+        go.transform.SetAsLastSibling();
+
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.5f, 0.5f); rt.anchorMax = new Vector2(0.5f, 0.5f); rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.sizeDelta = new Vector2(700, 140);
+        float startY = 120f;
+
+        float dur = 1.3f, tt = 0f;
+        while (tt < dur)
+        {
+            tt += Time.deltaTime;
+            float k = tt / dur;
+            rt.anchoredPosition = new Vector2(0f, startY + 120f * k);
+            t.color = new Color(0.5f, 0.95f, 1f, 1f - k * k);
+            yield return null;
+        }
+        Destroy(go);
+    }
+
 
 
     private void UpdatePlayerHP(int cur, int max)
