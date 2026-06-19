@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f25b66bae6a007b48959bab2a3c37589, type: 3}
-  m_Name: Goblin
+  m_Name: RiverFish
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
-  enemyName: Goblin
-  element: 1
-  maxHP: 80
-  attackPerTurn: 8
-  rewardSkill: {fileID: 11400000, guid: aa79922b168c53b4f9a17144fa08d676, type: 2}
-  introText: Mot Goblin hung han chan duong. Hoi nong toa ra tu no...
+  enemyName: RiverFish
+  element: 2
+  maxHP: 110
+  attackPerTurn: 11
+  rewardSkill: {fileID: 11400000, guid: bdfb0e62f44bcb64284788b4f08b2489, type: 2}
+  introText: Ca Song truon len bo, vay no lap lanh nuoc.
   sprite: {fileID: 0}

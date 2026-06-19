@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f25b66bae6a007b48959bab2a3c37589, type: 3}
-  m_Name: Goblin
+  m_Name: ForestWolf
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
-  enemyName: Goblin
-  element: 1
-  maxHP: 80
-  attackPerTurn: 8
-  rewardSkill: {fileID: 11400000, guid: aa79922b168c53b4f9a17144fa08d676, type: 2}
-  introText: Mot Goblin hung han chan duong. Hoi nong toa ra tu no...
+  enemyName: ForestWolf
+  element: 5
+  maxHP: 100
+  attackPerTurn: 10
+  rewardSkill: {fileID: 11400000, guid: 8762af3c78824fd4992125f097d8a548, type: 2}
+  introText: Soi Rung gam gu trong bui ram, anh mat xanh la loe len.
   sprite: {fileID: 0}
