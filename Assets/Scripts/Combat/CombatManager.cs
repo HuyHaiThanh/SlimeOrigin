@@ -163,4 +163,18 @@ public class CombatManager : MonoBehaviour
                 break;
         }
     }
+
+    /// <summary>Reset cả màn: dừng coroutine, HP player + quái full, board mới, counter 0, mở input.</summary>
+    public void ResetCombat()
+    {
+        StopAllCoroutines();
+        enemyFreezeTurns = 0;
+        PlayerHP = playerMaxHP;
+        OnPlayerHPChanged?.Invoke(PlayerHP, playerMaxHP);
+        if (skillSystem != null) skillSystem.ResetCounters();
+        if (enemy != null && enemy.Data != null) enemy.Init(enemy.Data);
+        if (board != null) board.RegenerateBoard();
+        if (swapHandler != null) swapHandler.InputEnabled = true;
+    }
+
 }

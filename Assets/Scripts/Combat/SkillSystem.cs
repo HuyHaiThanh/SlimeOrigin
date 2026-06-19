@@ -35,9 +35,12 @@ public class SkillSystem : MonoBehaviour
     }
 
     /// <summary>Reset toàn bộ counter — đầu mỗi trận.</summary>
+    /// <summary>Reset toàn bộ counter — đầu mỗi trận. Bắn event 0 để UI cập nhật.</summary>
     public void ResetCounters()
     {
+        var keys = new List<ElementType>(counters.Keys);
         counters.Clear();
+        foreach (var e in keys) OnCounterChanged?.Invoke(e, 0);
     }
 
     public int GetCounter(ElementType element)

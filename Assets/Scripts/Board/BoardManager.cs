@@ -50,6 +50,19 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    /// <summary>Xóa toàn bộ tile cũ rồi spawn lại board mới — dùng khi reset màn.</summary>
+    public void RegenerateBoard()
+    {
+        if (tiles != null)
+        {
+            for (int r = 0; r < height; r++)
+                for (int c = 0; c < width; c++)
+                    if (tiles[r, c] != null) Destroy(tiles[r, c].gameObject);
+        }
+        GenerateBoard();
+    }
+
+
     /// <summary>
     /// Chọn element ngẫu nhiên từ spawnPool sao cho KHÔNG tạo match-3 với 2 ô đã đặt
     /// bên trái (ngang) và 2 ô bên dưới (dọc). Vì fill theo thứ tự tăng dần r,c nên
